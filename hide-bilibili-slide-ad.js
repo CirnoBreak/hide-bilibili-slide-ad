@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         hide bilibili slide ad
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  隐藏新版哔哩哔哩侧边广告以及默认展开弹幕列表
 // @author       CirnoBreak
 // @match        https://www.bilibili.com/video/*
@@ -37,8 +37,8 @@
         // 变异过程中的操作为添加的元素列表
         let addedNodes = mutation.addedNodes;
         if (findCollapse(addedNodes, flag)) {
-          // 清除bui-collapse-body的style的height
-          document.querySelector('.bui-collapse-body').style.height = '';
+          // 触发一次点击事件，展开列表
+          selector('.bui-collapse-header').click();
           flag = true;
           // 停止观察
           observer.disconnect();

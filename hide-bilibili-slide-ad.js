@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         hide bilibili slide ad
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.4
 // @description  隐藏新版哔哩哔哩侧边广告以及默认展开弹幕列表
 // @author       CirnoBreak
 // @match        https://www.bilibili.com/video/*
@@ -19,30 +19,21 @@
   // MutationObserver选项,此处观察子元素集合跟子树的变动
   const config = { childList: true, subtree: true };
   // 判断在加载过程中是否找到className为bui-collapse的元素
-  const findCollapse = (addedNodes, flag) => {
-    return !!addedNodes &&
-      !!addedNodes[0] &&
-      !!addedNodes[0].children &&
-      !!addedNodes[0].children[0] &&
-      !!addedNodes[0].children[0].classList &&
-      addedNodes[0].children[0].classList.value.includes('bui-collapse') &&
-      !flag;
+  const findCollapse = (target) => {
+    return target.classList.value.includes('player-auxiliary');
   }
   // MutationObserver 的回调函数
   const callback = (mutationsList) => {
     // 用于判断是否找到元素，找到之后赋值为true不执行
     let flag;
     for (let mutation of mutationsList) {
-      if (mutation.type == 'childList') {
-        // 变异过程中的操作为添加的元素列表
-        let addedNodes = mutation.addedNodes;
-        if (findCollapse(addedNodes, flag)) {
-          // 清除bui-collapse-body的style的height
-          document.querySelector('.bui-collapse-body').style.height = '';
-          flag = true;
-          // 停止观察
-          observer.disconnect();
-        }
+      const target = mutation.target;
+      if (!flag && findCollapse(target)) {
+        // 找到后触发弹幕列表标题点击事件
+        selector('.bui-collapse-header').click();
+        flag = true;
+        // 停止观察
+        observer.disconnect();
       }
     }
   };
